@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume & Portfolio Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        nav a:hover, nav a.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .cta-button {
+            background: white;
+            color: #667eea;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .form-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-section h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 1rem;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .dynamic-list {
+            margin-top: 1rem;
+        }
+
+        .list-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .list-item button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 5px;
+            cursor: pointer;
+            float: right;
+        }
+
+        .preview {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+
+        .resume-preview {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+            border: 1px solid #ddd;
+        }
+
+        .resume-header {
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .resume-header h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .resume-section {
+            margin-bottom: 2rem;
+        }
+
+        .resume-section h2 {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .portfolio-item {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .portfolio-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .portfolio-item-content {
+            padding: 1.5rem;
+        }
+
+        .portfolio-item h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .download-section {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            margin-top: 2rem;
+        }
+
+        .ai-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#" onclick="showPage('home')" class="nav-link active">Home</a></li>
+            <li><a href="#" onclick="showPage('builder')" class="nav-link">Resume Builder</a></li>
+            <li><a href="#" onclick="showPage('portfolio')" class="nav-link">Portfolio</a></li>
+            <li><a href="#" onclick="showPage('cover-letter')" class="nav-link">Cover Letter</a></li>
+            <li><a href="#" onclick="showPage('preview')" class="nav-link">Preview & Download</a></li>
+        </ul>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="home" class="page active">
+        <div class="hero">
+            <h1>AI Resume & Portfolio Builder</h1>
+            <p>Create professional resumes, portfolios, and cover letters powered by AI</p>
+            <button class="cta-button" onclick="showPage('builder')">Get Started →</button>
+        </div>
+        <div class="container">
+            <div class="features">
+                <div class="feature-card">
+                    <h3>🎯 AI-Powered Customization</h3>
+                    <p>Our intelligent system analyzes your skills and experience to create tailored resumes that highlight your unique strengths.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📊 Professional Templates</h3>
+                    <p>Choose from modern, ATS-friendly templates designed to impress recruiters and pass applicant tracking systems.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>💼 Portfolio Integration</h3>
+                    <p>Showcase your projects with stunning portfolio pages that demonstrate your practical skills and achievements.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>✍️ Cover Letter Generator</h3>
+                    <p>Generate compelling cover letters customized for each job application with AI-powered content suggestions.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⚡ Instant Preview</h3>
+                    <p>See real-time previews of your resume and make adjustments on the fly before downloading.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📥 Multiple Formats</h3>
+                    <p>Download your resume in PDF, Word, or HTML formats, ready to submit or share online.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resume Builder Page -->
+    <div id="builder" class="page">
+        <div class="container">
+            <div class="form-section">
+                <span class="ai-badge">✨ AI-Enhanced</span>
+                <h2>Personal Information</h2>
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="fullName" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="email" placeholder="john.doe@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" id="phone" placeholder="+1 (555) 123-4567">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="location" placeholder="San Francisco, CA">
+                </div>
+                <div class="form-group">
+                    <label>LinkedIn Profile</label>
+                    <input type="url" id="linkedin" placeholder="https://linkedin.com/in/johndoe">
+                </div>
+                <div class="form-group">
+                    <label>Professional Summary</label>
+                    <textarea id="summary" placeholder="Write a brief professional summary about yourself..."></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Education</h2>
+                <div class="form-group">
+                    <label>Degree</label>
+                    <input type="text" id="degree" placeholder="Bachelor of Science in Computer Science">
+                </div>
+                <div class="form-group">
+                    <label>Institution</label>
+                    <input type="text" id="institution" placeholder="University of California">
+                </div>
+                <div class="form-group">
+                    <label>Graduation Year</label>
+                    <input type="text" id="gradYear" placeholder="2024">
+                </div>
+                <div class="form-group">
+                    <label>GPA (Optional)</label>
+                    <input type="text" id="gpa" placeholder="3.8/4.0">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Skills</h2>
+                <div class="form-group">
+                    <label>Add Skill</label>
+                    <input type="text" id="skillInput" placeholder="e.g., Python, JavaScript, React">
+                    <button class="btn" onclick="addSkill()" style="margin-top: 0.5rem;">Add Skill</button>
+                </div>
+                <div id="skillsList" class="dynamic-list"></div>
+            </div>
+
+            <div class="form-section">
+                <h2>Experience</h2>
+                <div class="form-group">
+                    <label>Job Title</label>
+                    <input type="text" id="jobTitle" placeholder="Software Engineer Intern">
+                </div>
+                <div class="form-group">
+                    <label>Company</label>
+                    <input type="text" id="company" placeholder="Tech Company Inc.">
+                </div>
+                <div class="form-group">
+                    <label>Duration</label>
+                    <input type="text" id="duration" placeholder="June 2023 - August 2023">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="jobDesc" placeholder="Describe your responsibilities and achievements..."></textarea>
+                </div>
+                <button class="btn" onclick="addExperience()">Add Experience</button>
+                <div id="experienceList" class="dynamic-list"></div>
+            </div>
+
+            <div style="text-align: center; margin: 2rem 0;">
+                <button class="btn" onclick="generateResume()">Generate AI Resume</button>
+                <button class="btn btn-secondary" onclick="showPage('preview')">Preview Resume</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Portfolio Page -->
+    <div id="portfolio" class="page">
+        <div class="container">
+            <div class="form-section">
+                <span class="ai-badge">✨ AI-Enhanced</span>
+                <h2>Add Project to Portfolio</h2>
+                <div class="form-group">
+                    <label>Project Name *</label>
+                    <input type="text" id="projectName" placeholder="E-commerce Platform">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="projectDesc" placeholder="Describe your project, technologies used, and your role..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Technologies</label>
+                    <input type="text" id="projectTech" placeholder="React, Node.js, MongoDB">
+                </div>
+                <div class="form-group">
+                    <label>Project Link</label>
+                    <input type="url" id="projectLink" placeholder="https://github.com/username/project">
+                </div>
+                <button class="btn" onclick="addProject()">Add Project</button>
+            </div>
+
+            <div class="preview">
+                <h2 style="color: #667eea; margin-bottom: 1.5rem;">Your Portfolio</h2>
+                <div id="portfolioGrid" class="portfolio-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cover Letter Page -->
+    <div id="cover-letter" class="page">
+        <div class="container">
+            <div class="form-section">
+                <span class="ai-badge">✨ AI-Powered</span>
+                <h2>Generate Cover Letter</h2>
+                <div class="form-group">
+                    <label>Company Name *</label>
+                    <input type="text" id="companyName" placeholder="Tech Innovations Inc.">
+                </div>
+                <div class="form-group">
+                    <label>Position *</label>
+                    <input type="text" id="position" placeholder="Software Developer">
+                </div>
+                <div class="form-group">
+                    <label>Job Description (paste here)</label>
+                    <textarea id="jobDescription" placeholder="Paste the job description to help AI customize your cover letter..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Key Skills to Highlight</label>
+                    <input type="text" id="highlightSkills" placeholder="Python, Machine Learning, Team Leadership">
+                </div>
+                <button class="btn" onclick="generateCoverLetter()">Generate AI Cover Letter</button>
+            </div>
+
+            <div id="coverLetterPreview" class="preview" style="display: none;">
+                <h2 style="color: #667eea; margin-bottom: 1.5rem;">Your Cover Letter</h2>
+                <div id="coverLetterContent" style="line-height: 1.8;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview & Download Page -->
+    <div id="preview" class="page">
+        <div class="container">
+            <div class="preview">
+                <h2 style="color: #667eea; margin-bottom: 1.5rem; text-align: center;">Resume Preview</h2>
+                <div class="resume-preview" id="resumePreview">
+                    <div class="resume-header">
+                        <h1 id="previewName">Your Name</h1>
+                        <p id="previewContact">your.email@example.com | +1 (555) 123-4567 | Location</p>
+                        <p id="previewLinks"></p>
+                    </div>
+
+                    <div class="resume-section">
+                        <h2>Professional Summary</h2>
+                        <p id="previewSummary">Your professional summary will appear here...</p>
+                    </div>
+
+                    <div class="resume-section">
+                        <h2>Education</h2>
+                        <div id="previewEducation"></div>
+                    </div>
+
+                    <div class="resume-section">
+                        <h2>Skills</h2>
+                        <p id="previewSkills">Your skills will appear here...</p>
+                    </div>
+
+                    <div class="resume-section">
+                        <h2>Experience</h2>
+                        <div id="previewExperience"></div>
+                    </div>
+
+                    <div class="resume-section">
+                        <h2>Projects</h2>
+                        <div id="previewProjects"></div>
+                    </div>
+                </div>
+
+                <div class="download-section">
+                    <h3 style="color: #667eea; margin-bottom: 1rem;">Download Your Resume</h3>
+                    <button class="btn" onclick="alert('PDF download functionality would be implemented with a backend service')">Download as PDF</button>
+                    <button class="btn" onclick="alert('Word download functionality would be implemented with a backend service')">Download as Word</button>
+                    <button class="btn btn-secondary" onclick="printResume()">Print Resume</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const userData = {
+        skills: [],
+        experiences: [],
+        projects: []
+    };
+
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+
+        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+        event.target.classList.add('active');
+
+        if (pageId === 'preview') {
+            updatePreview();
+        }
+    }
+
+    // ------------------- SKILLS -------------------
+    function addSkill() {
+        const skillInput = document.getElementById('skillInput');
+        const skill = skillInput.value.trim();
+        if (skill) {
+            userData.skills.push(skill);
+            updateSkillsList();
+            skillInput.value = '';
+        }
+    }
+
+    function updateSkillsList() {
+        const list = document.getElementById('skillsList');
+        list.innerHTML = userData.skills.map((skill, index) => `
+            <div class="list-item">
+                ${skill}
+                <button onclick="removeSkill(${index})">Remove</button>
+            </div>
+        `).join('');
+    }
+
+    function removeSkill(index) {
+        userData.skills.splice(index, 1);
+        updateSkillsList();
+    }
+
+    // ------------------- EXPERIENCE -------------------
+    function addExperience() {
+        const jobTitle = document.getElementById('jobTitle').value;
+        const company = document.getElementById('company').value;
+        const duration = document.getElementById('duration').value;
+        const jobDesc = document.getElementById('jobDesc').value;
+
+        if (jobTitle && company) {
+            userData.experiences.push({ jobTitle, company, duration, jobDesc });
+            updateExperienceList();
+            document.getElementById('jobTitle').value = '';
+            document.getElementById('company').value = '';
+            document.getElementById('duration').value = '';
+            document.getElementById('jobDesc').value = '';
+        }
+    }
+
+    function updateExperienceList() {
+        const list = document.getElementById('experienceList');
+        list.innerHTML = userData.experiences.map((exp, index) => `
+            <div class="list-item">
+                <strong>${exp.jobTitle}</strong> at ${exp.company}<br>
+                <small>${exp.duration}</small>
+                <button onclick="removeExperience(${index})">Remove</button>
+            </div>
+        `).join('');
+    }
+
+    function removeExperience(index) {
+        userData.experiences.splice(index, 1);
+        updateExperienceList();
+    }
+
+    // ------------------- PROJECTS -------------------
+    function addProject() {
+        const projectName = document.getElementById('projectName').value;
+        const projectDesc = document.getElementById('projectDesc').value;
+        const projectTech = document.getElementById('projectTech').value;
+        const projectLink = document.getElementById('projectLink').value;
+
+        if (projectName) {
+            const project = { projectName, projectDesc, projectTech, projectLink };
+            userData.projects.push(project);
+            updateProjectsGrid();
+            document.getElementById('projectName').value = '';
+            document.getElementById('projectDesc').value = '';
+            document.getElementById('projectTech').value = '';
+            document.getElementById('projectLink').value = '';
+
+            // Send to backend
+            sendProjectToBackend(project);
+        }
+    }
+
+    function updateProjectsGrid() {
+        const grid = document.getElementById('portfolioGrid');
+        grid.innerHTML = userData.projects.map((proj, index) => `
+            <div class="portfolio-item">
+                <div class="portfolio-item-content">
+                    <h3>${proj.projectName}</h3>
+                    <p>${proj.projectDesc || 'No description provided'}</p>
+                    <p><strong>Technologies:</strong> ${proj.projectTech || 'N/A'}</p>
+                    ${proj.projectLink ? `<p><a href="${proj.projectLink}" target="_blank" style="color: #667eea;">View Project →</a></p>` : ''}
+                    <button class="btn btn-secondary" onclick="removeProject(${index})" style="margin-top: 1rem; padding: 0.5rem 1rem;">Remove</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function removeProject(index) {
+        userData.projects.splice(index, 1);
+        updateProjectsGrid();
+    }
+
+    async function sendProjectToBackend(project) {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/generate-portfolio/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(project)
+            });
+            const data = await response.json();
+            console.log('Project sent to backend:', data);
+        } catch (error) {
+            console.error('Failed to send project to backend:', error);
+        }
+    }
+
+    // ------------------- GENERATE RESUME -------------------
+    async function generateResume() {
+        const resumeData = {
+            name: document.getElementById('fullName').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            location: document.getElementById('location').value,
+            linkedin: document.getElementById('linkedin').value,
+            summary: document.getElementById('summary').value,
+            education: {
+                degree: document.getElementById('degree').value,
+                institution: document.getElementById('institution').value,
+                gradYear: document.getElementById('gradYear').value,
+                gpa: document.getElementById('gpa').value
+            },
+            skills: userData.skills,
+            experiences: userData.experiences,
+            projects: userData.projects
+        };
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/generate-resume/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(resumeData)
+            });
+            const data = await response.json();
+
+            // Update preview
+            updatePreview(data.generated_resume);
+            showPage('preview');
+            alert('Resume generated successfully!');
+        } catch (error) {
+            console.error('Error generating resume:', error);
+            alert('Failed to generate resume. Make sure backend is running.');
+        }
+    }
+
+    // ------------------- GENERATE COVER LETTER -------------------
+    async function generateCoverLetter() {
+        const coverData = {
+            company: document.getElementById('companyName').value,
+            position: document.getElementById('position').value,
+            job_description: document.getElementById('jobDescription').value,
+            skills: document.getElementById('highlightSkills').value,
+            name: document.getElementById('fullName').value
+        };
+
+        if (!coverData.company || !coverData.position) {
+            alert('Please fill in the company name and position');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/generate-cover-letter/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(coverData)
+            });
+            const data = await response.json();
+
+            document.getElementById('coverLetterPreview').style.display = 'block';
+            document.getElementById('coverLetterContent').innerText = data.generated_cover_letter;
+        } catch (error) {
+            console.error('Error generating cover letter:', error);
+            alert('Failed to generate cover letter. Make sure backend is running.');
+        }
+    }
+
+    // ------------------- UPDATE PREVIEW -------------------
+    function updatePreview(aiResumeText = null) {
+        document.getElementById('previewName').textContent = document.getElementById('fullName').value || 'Your Name';
+
+        const contact = [
+            document.getElementById('email').value,
+            document.getElementById('phone').value,
+            document.getElementById('location').value
+        ].filter(Boolean).join(' | ');
+        document.getElementById('previewContact').textContent = contact;
+
+        const links = document.getElementById('linkedin').value;
+        document.getElementById('previewLinks').textContent = links || '';
+
+        document.getElementById('previewSummary').textContent = document.getElementById('summary').value || 'Your professional summary will appear here...';
+
+        const educationHTML = `
+            <p><strong>${document.getElementById('degree').value || 'Your Degree'}</strong><br>
+            ${document.getElementById('institution').value || 'Your Institution'} - ${document.getElementById('gradYear').value || 'Year'}<br>
+            ${document.getElementById('gpa').value ? 'GPA: ' + document.getElementById('gpa').value : ''}</p>
+        `;
+        document.getElementById('previewEducation').innerHTML = educationHTML;
+
+        document.getElementById('previewSkills').textContent = userData.skills.join(' • ') || 'Your skills will appear here...';
+
+        const experienceHTML = userData.experiences.map(exp => `
+            <div style="margin-bottom: 1.5rem;">
+                <p><strong>${exp.jobTitle}</strong> - ${exp.company}<br>
+                <em>${exp.duration}</em></p>
+                <p>${exp.jobDesc}</p>
+            </div>
+        `).join('');
+        document.getElementById('previewExperience').innerHTML = experienceHTML || '<p>No experience added yet</p>';
+
+        const projectsHTML = userData.projects.map(proj => `
+            <div style="margin-bottom: 1.5rem;">
+                <p><strong>${proj.projectName}</strong><br>
+                ${proj.projectDesc}<br>
+                <em>Technologies: ${proj.projectTech}</em></p>
+            </div>
+        `).join('');
+        document.getElementById('previewProjects').innerHTML = projectsHTML || '<p>No projects added yet</p>';
+
+        // If AI backend provided a resume text, show it
+        if (aiResumeText) {
+            document.getElementById('previewSummary').textContent = aiResumeText;
+        }
+    }
+
+    function printResume() {
+        window.print();
+    }
+</script>
+
+</body>
+</html>
